@@ -4,7 +4,10 @@
 
 ### Install salmon, terminus, and tree-terminus
 
-_TODO_
+Required software:
+- Salmon version 1.5.2
+- Terminus 0.1.0
+- TreeTerminus 0.1.0
 
 ### Data
 
