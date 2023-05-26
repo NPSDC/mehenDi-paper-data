@@ -1,0 +1,21 @@
+seed: 1
+replicates: [1,2]
+fc_min: 1.4
+fc_max: 2.8
+frag_len: 200
+lib_size: 100000
+gc_bias: true
+txp_fasta: data/gencode.v26.annotations.short.names.fa
+txdb: data/gencode.v26.annotation.sqlite
+cortex_tpms: frontal_cortex.tsv.gz
+meandisp: meanDispPairs/meanDispPairs.rda
+gc_params: data/fitpar_all.rda
+
+sal_path: "/fs/cbcb-lab/rob/students/noor/Uncertainity/treeTerminusScripts/Chimpanzee/no_thresh_boot/.snakemake/conda/b5dc9e9ebd55a53225f40312a659f7a2/bin/salmon"
+sal_idx_path: "/fs/cbcb-lab/rob/students/noor/Uncertainity/brain_sim/annotation/sal_ind_nodup"
+nreplicates: 2 # posterior samples
+posterior_type: gibbs #specific type of posterior sampling gibbs or bootstrap
+thinning_factor: 16
+
+term_path: "/fs/cbcb-lab/rob/students/noor/Uncertainity/terminus"
+treeterm_path: "/fs/cbcb-lab/rob/students/noor/Uncertainity/TreeTerminus"
