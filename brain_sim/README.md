@@ -8,7 +8,7 @@ _TODO_
 
 ### Data
 
-_TODO: Download into `data/`
+_TODO: Download into `data/`_
 - gtf
 - gencode transcript sequences (FASTA)
 - txdb
@@ -23,17 +23,22 @@ The output FASTA file has parsed and cleaned transcript names and are used for e
 
 To run an experiment with specified parameters:
 
-    `snakemake --cores <cores> --configfile <config>`
+    snakemake --cores <cores> --configfile <config>
 
 ### Configuration
 
-Example configurations are provided in `configs`.
+Example configurations (YAML files provided to snakemake) are provided in `configs/`.
+- `small_example.yml` A example configuration for a small example with few replicates and small library size.
+- `low_fc.yml` _TODO: description_
+- `high_fc.yml` _TODO: description_
 
 Please change paths for salmon, tree-terminus, and terminus binaries to point to your own installations.
-
 Please change path for salmon index to local index for quantified transcriptome.
 
-```
+The config parameter `output_prefix` can be specified to change the path where outputs are placed, outputs will be written to `output` otherwise. Note that `low_fc.yml` and `high_fc.yml`configure experiments that produce >50GB of simulated reads.
+
+An annotated YAML configuration:
+```YAML
 # small_example.yml -- a small example of the workflow
 seed: 1
 # Replicate names
