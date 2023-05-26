@@ -256,7 +256,7 @@ rule run_term_collapse:
     output:
         expand(term_clust,  rep = REPLICATES, cond = [1,2])
     params:
-        term_path = config['term_path'] + '/target/release/terminus',
+        term_path = config['term_path'],
         output = term_orig_dir,
         #partition = get_partition('run_term_collapse')
     shell:
@@ -270,7 +270,7 @@ rule _run_term_group:
     input:sal_quant_dir
     output:term_group
     params:
-        term_path = config['term_path'] + '/target/release/terminus',
+        term_path = config['term_path'], 
         output = term_orig_dir,
         #partition = get_partition('_run_term_group')
     shell:
@@ -285,7 +285,7 @@ rule run_treeterm_mean_inf0:
         treeterm_mean_inf0_group
     params:
         input = sal_dir,
-        treeterm_path = config['treeterm_path'] + '/target/release/treeterminus',
+        treeterm_path = config['treeterm_path'], 
         output = treeterm_mean_inf0_dir,
     shell:
         '''
@@ -299,7 +299,7 @@ rule run_treeterm_cons_nothr0:
         quant_files = expand(sal_quant_dir, rep = REPLICATES, cond = [1,2])
     output:treeterm_nothr0_clust
     params:
-        treeterm_path = config['treeterm_path'] + '/target/release/treeterminus',
+        treeterm_path = config['treeterm_path'],
         input = sal_dir,
         output = treeterm_nothr0_dir,
     shell:
@@ -315,7 +315,7 @@ rule _run_term_group_nothr0:
     output:
         treeterm_nothr0_group
     params:
-        treeterm_path = config['treeterm_path'] + '/target/release/treeterminus',
+        treeterm_path = config['treeterm_path'],
         output = treeterm_nothr0_dir,
 
     shell:
@@ -329,7 +329,7 @@ rule run_treeterm_cons_nothr:
         quant_files = expand(sal_quant_dir, rep = REPLICATES, cond = [1,2])
     output:treeterm_nothr_clust
     params:
-        treeterm_path = config['treeterm_path'] + '/target/release/treeterminus',
+        treeterm_path = config['treeterm_path'],
         input = sal_dir,
         output = treeterm_nothr_dir,
     shell:
@@ -346,7 +346,7 @@ rule _run_treeterm_group_nothr:
     output:
         treeterm_nothr_group
     params:
-        treeterm_path = config['treeterm_path'] + '/target/release/treeterminus',
+        treeterm_path = config['treeterm_path'],
         output = treeterm_nothr_dir,
     shell:
         '''
@@ -361,7 +361,7 @@ rule run_treeterm_cons_thr:
         quant_files = expand(sal_quant_dir, rep = REPLICATES, cond = [1,2])
     output:treeterm_thr_clust
     params:
-        treeterm_path = config['treeterm_path'] + '/target/release/treeterminus',
+        treeterm_path = config['treeterm_path'],
         input = sal_dir,
         output = treeterm_thr_dir,
     shell:
@@ -379,8 +379,7 @@ rule _run_treeterm_group_thr:
     output:
         treeterm_thr_group
     params:
-        treeterm_path = config['treeterm_path'] + '/target/release/treeterminus',
-        #partition = get_partition('_run_treeterm_group_thr'),
+        treeterm_path = config['treeterm_path'],
         output = treeterm_thr_dir,
 
     shell:

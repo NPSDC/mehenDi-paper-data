@@ -19,5 +19,5 @@ posterior_type: gibbs #specific type of posterior sampling gibbs or bootstrap
 nreplicates: 100 # posterior samples
 thinning_factor: 100
 
-term_path: "/fs/cbcb-lab/rob/students/noor/Uncertainity/terminus"
-treeterm_path: "/fs/cbcb-lab/rob/students/noor/Uncertainity/TreeTerminus"
+term_path: "/fs/cbcb-lab/rob/students/noor/Uncertainity/terminus/target/release/terminus"
+treeterm_path: "/fs/cbcb-lab/rob/students/noor/Uncertainity/TreeTerminus/target/release/treeterminus"

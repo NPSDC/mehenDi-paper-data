@@ -1,0 +1,9 @@
+.snakemake/
+output/
+
+*.pdf
+*.fa.gz
+*.fa
+*.fasta
+*.gtf.gz
+*.sqlite
