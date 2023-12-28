@@ -1,0 +1,236 @@
+### Adapted from
+### https://gist.github.com/mikelove/5a8134e57f652f970f1a176efc900cbe
+### https://www.sichong.site/2020/02/25/snakemake-and-slurm-how-to-manage-workflow-with-resource-constraint-on-hpc/
+
+from os.path import join
+import yaml
+
+RUNS, = glob_wildcards(config['bam_path'] + "/{run}.bam")
+
+import pandas as pd
+df = pd.read_csv("SYNAPSE_METADATA_MANIFEST.tsv", sep = '\t')
+RUNS = list(map(lambda x:x.split("/")[-1].split(".")[0], df["path"].values))
+bam_files = df[df["tissue"]!="medial dorsal nucleus of thalamus"]["path"].values ##removing medial dorsal samples
+final_runs = list(map(lambda x:x.split("/")[-1].split(".")[0], bam_files))
+
+out_path = config['main_path']
+
+fastq_path = join(out_path, "fastq")
+fastqc_path = join(out_path, "fastqc")
+if "fastq_path" in config.keys():
+    fastq_path = config['fastq_path']
+
+fastq_file = join(fastq_path, "{sample}.fastq")
+
+sal_dir=join(out_path, "sal_out")
+if "sal_out" in config.keys():
+    sal_dir=config['sal_out']
+
+tf=16
+if "tf" in config.keys():
+    tf = config['tf'] ##thinning factor
+
+post_type="gibbs"
+if "posterior_type" in config.keys():
+    post_type = config["posterior_type"]
+
+npost=100
+if "npost" in config.keys():
+    npost = config["npost"]
+
+gc_bias=True
+if "gc_bias" in config.keys():
+    gc_bias = config["gc_bias"]
+
+sal_dir=join(sal_dir,"mode_gcbias="+str(gc_bias))
+sal_dir=join(sal_dir, "posttype={}_npost={}_tf={}".format(post_type, npost, tf))
+sal_quant_dir = join(sal_dir, "{sample}")
+sal_quant_file = join(sal_quant_dir, "quant.sf")
+
+sym_link_dir = join(sal_dir, "symlink")
+sym_link_quant_dir = join(sym_link_dir, "{sample}")
+sym_link_quant_file = join(sym_link_quant_dir, "quant.sf")
+
+term_dir=join(out_path, "term_out")
+if "term_out" in config.keys():
+    term_dir=config["term_out"]
+term_dir=join(term_dir,"mode_gcbias="+str(gc_bias))
+term_dir=join(term_dir, "posttype={}_npost={}_tf={}".format(post_type, npost, tf))
+
+term_nothr0_dir = join(term_dir, "nothr0")
+term_nothr0_group = join(term_nothr0_dir, "{sample}", "group_nwk.txt")
+term_nothr0_clust = join(term_nothr0_dir, "cluster_nwk.txt")
+
+term_old_dir = join(term_dir, "terminus") ###Hirak terminus
+term_old_group = join(term_old_dir, "{sample}", "groups.txt")
+term_old_cons = join(term_old_dir, "{sample}", "clusters.txt")
+
+rule final_outputs:
+    input:
+        term_old_clust = expand(term_old_cons, sample=final_runs),
+        term_nothr0_clust = term_nothr0_clust
+
+rule run_term_collapse_hirak:
+    input:
+        inp_term = expand(term_old_group, sample=final_runs),
+        inp_sal = expand(sym_link_quant_dir, sample=final_runs)
+    output:
+        expand(term_old_cons, sample=final_runs)
+    params:
+        term_path = config["term_path"],
+        output = term_old_dir,
+    shell:
+        """
+            cd {params.term_path}
+            target/release/terminus collapse -c 0.5 -d {input.inp_sal} -o {params.output}
+            cd -
+        """
+rule run_term_group_hirak:
+    input:expand(term_old_group, sample = final_runs)
+
+rule _run_term_group_hirak:
+    input:sym_link_quant_dir
+    output:term_old_group
+    params:
+        term_path = config["term_path"] + "/target/release/terminus",
+        output = term_old_dir
+    shell:
+        """
+          {params.term_path} group -m 0.1 --tolerance 0.001 -d {input} -o {params.output}
+        """
+
+rule run_term_cons_nothr0:
+    input:
+        group_files = expand(term_nothr0_group, sample = final_runs),
+        quant_files = expand(sym_link_quant_dir, sample = final_runs)
+    output:term_nothr0_clust
+    params:
+        treeterm_path = config["treeterm_path"],
+        input = sym_link_dir,
+        output = term_nothr0_dir
+    shell:
+        """
+           cd {params.treeterm_path}
+           target/release/TreeTerminus collapse -c 0 -d {params.input} -o {params.output} -m true --merge_type phylip
+           cd -
+        """
+
+rule run_term_group_nothr0:
+    input:expand(term_nothr0_group, sample = final_runs)
+
+rule _run_term_group_nothr0:
+    input:sym_link_quant_dir
+    output:term_nothr0_group
+    params:
+        treeterm_path = config["treeterm_path"] + "/target/release/TreeTerminus",
+        output = term_nothr0_dir
+    shell:
+        "{params.treeterm_path} group -m 0.1 --tolerance 0.001 -d {input} -o {params.output}  --thr false --mean_inf false --inf_perc 0"
+
+rule run_symlink:
+    input:expand(sym_link_quant_file, sample = final_runs)
+    
+        
+rule _run_symlink:
+    input:sal_quant_dir
+    output:sym_link_quant_file
+    params:
+        output = sym_link_quant_dir,
+        output_temp = sym_link_quant_dir+"temp",
+        outln = join(sym_link_quant_dir+"temp", "{sample}"),
+        sym_link_dir = sym_link_dir
+    shell:
+        """
+            ln -s {input} {params.output}
+            mv {params.output} {params.output_temp}
+            mv {params.outln} {params.sym_link_dir}
+            rm -rf {params.output_temp}
+        """
+                
+rule run_salmon:
+    input:expand(sal_quant_file, sample=RUNS)
+
+rule _run_salmon:
+    input:
+        inp_fastq = fastq_file
+    output:
+        out_sal = sal_quant_file
+    resources: cpus=10, mem=32000
+    params:
+        out_dir = sal_quant_dir,
+        index = config['ind_path'] + "/sal_ind"
+        #partition = "throughput"
+    conda:
+        "env.yml"
+    shell:
+        "salmon quant -i {params.index} -l A -p {resources.cpus} --gcBias "
+        "--numGibbsSamples 100 --thinningFactor 100 -d "
+        "-o {params.out_dir} -r {input.inp_fastq}"
+
+rule build_sal_ind:
+    input:
+        inp_whole_fasta = config['ind_path'] + "/" + config['chimp_genome_fa'],
+        inp_whole_cdna = config['ind_path'] + "/" + config['chimp_cdna_fa'],
+        inp_whole_ncrna = config['ind_path'] + "/" + config['chimp_ncrna_fa']
+        
+    output:
+        config['ind_path'] + "/sal_ind/pos.bin"
+    params:
+        ind_path = config['ind_path'],
+        inp_sal_ind = config['ind_path'] + "/sal_ind"
+    resources:cpus=10, mem=32000
+    conda:
+        "env.yml"
+    shell:
+        """
+            grep "^>" <(gunzip -c {input.inp_whole_fasta}) | cut -d " " -f 1 > decoys.txt
+            sed -i.bak -e 's/>//g' decoys.txt
+            cat {input.inp_whole_cdna} {input.inp_whole_ncrna} {input.inp_whole_fasta} > gentrome.fa.gz
+            salmon index -t gentrome.fa.gz -d decoys.txt -p {resources.cpus} -i {params.inp_sal_ind} --gencode
+            rm decoys.txt gentrome.fa.gz
+        """
+
+rule multiqc:
+    input: config['multiqc_path'] + "/multiqc_report.html"
+
+rule _multiqc:
+    input:
+        expand([sal_quant_file,
+                config['fastqc_path'] + "/{run}/{run}_fastqc.html"],
+               run=RUNS, sample=RUNS)
+    output:
+        config['multiqc_path'] + "/multiqc_report.html"
+    params:
+        output = config['multiqc_path']
+    shell:
+        """
+            module load multiqc
+            multiqc . -o {params.output}
+        """
+
+rule fastqc:
+    input:
+        inp_fastq = fastq_path
+    output:
+        config['fastqc_path'] + "/{sample}/{sample}_fastqc.html"
+    resources: cpus=10
+    params:
+        dir = config['fastqc_path'] + "/{sample}"
+    shell:
+        """
+            module load fastqc
+            fastqc --quiet -t {resources.cpus} --outdir {params.dir} {input}
+        """
+
+rule conv_bam:
+    input:
+        inp_bam = config['bam_path'] + "/{sample}.bam"
+    output:
+        out_fastq = fastq_file
+    params:
+        bed_path = config['bed_path']
+    shell:
+        """
+            export PATH=$PATH:{params.bed_path}
+            bamToFastq -i {input.inp_bam} -fq {output.out_fastq}
+        """
