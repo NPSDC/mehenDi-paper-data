@@ -1,0 +1,21 @@
+{
+    "sra_file":"SRR_Acc_List.txt",
+    "main_path":"/fs/cbcb-lab/rob/students/noor/Uncertainity/real_datasets/GSE100505_EDL_MAST",
+    "ann_path":"/fs/cbcb-lab/rob/students/noor/Uncertainity/real_datasets/GSE100505/annotation",
+    "orig_path":"/fs/cbcb-lab/rob/students/noor/Uncertainity/real_datasets/GSE100505",
+    "fastq_path":"/fs/cbcb-lab/rob/students/noor/Uncertainity/real_datasets/GSE100505/fastq",
+    "dump_path":"~/sratoolkit.3.0.1-centos_linux64/bin/fasterq-dump",
+    "paired":false,
+    "keep_dup":false,
+    "salmon_path":"/fs/cbcb-lab/rob/students/noor/Uncertainity/treeTerminusScripts/Chimpanzee/no_thresh_boot/.snakemake/conda/b5dc9e9ebd55a53225f40312a659f7a2/bin/salmon",
+    "genome_fa":"GRCm38.primary_assembly.genome.fa.gz",
+    "genome_txp_fa":"gencode.vM25.transcripts.fa.gz",
+    "tf":100,
+    "gc_bias":true,
+    "post_type":"gibbs",
+    "npost":100,
+    "treeterm_path":"/fs/cbcb-lab/rob/students/noor/Uncertainity/TreeTerminus",
+    "term_path":"/fs/cbcb-lab/rob/students/noor/Uncertainity/term_hirak/terminus",
+    "_comment_txp":"https://ftp.ebi.ac.uk/pub/databases/gencode/Gencode_mouse/release_M25/gencode.vM25.transcripts.fa.gz",
+    "_comment_genome":"https://ftp.ebi.ac.uk/pub/databases/gencode/Gencode_mouse/release_M25/GRCm38.primary_assembly.genome.fa.gz"
+}
