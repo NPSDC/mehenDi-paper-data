@@ -7,10 +7,10 @@ fc_max: 2.8
 frag_len: 200
 lib_size: 40_000_000
 gc_bias: true
-txp_fasta: data/gencode.v26.annotations.short.names.fa
+txp_fasta: data/gencode.v26.transcripts.short.names.fa
 txdb: data/gencode.v26.annotation.sqlite
-cortex_tpms: frontal_cortex.tsv.gz
-meandisp: meanDispPairs/meanDispPairs.rda
+cortex_tpms: data/frontal_cortex.tsv.gz
+meandisp: data/meanDispPairs.rda
 gc_params: data/fitpar_all.rda
 
 sal_path: "/fs/cbcb-lab/rob/students/noor/Uncertainity/treeTerminusScripts/Chimpanzee/no_thresh_boot/.snakemake/conda/b5dc9e9ebd55a53225f40312a659f7a2/bin/salmon"

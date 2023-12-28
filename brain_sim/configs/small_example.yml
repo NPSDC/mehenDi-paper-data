@@ -5,7 +5,7 @@ fc_max: 2.8
 frag_len: 200
 lib_size: 100000
 gc_bias: true
-txp_fasta: data/gencode.v26.annotations.short.names.fa
+txp_fasta: data/gencode.v26.transcripts.short.names.fa
 txdb: data/gencode.v26.annotation.sqlite
 cortex_tpms: frontal_cortex.tsv.gz
 meandisp: meanDispPairs/meanDispPairs.rda
