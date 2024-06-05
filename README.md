@@ -1,4 +1,5 @@
-# treede-paper-scripts
+# mehenDi-paper-scripts
+[![DOI](https://zenodo.org/badge/645947169.svg)](https://zenodo.org/doi/10.5281/zenodo.11481347)
 
 ## Setup
 
